@@ -1,0 +1,14 @@
+{
+  "name": "digital-pokedex-backend",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "node .",
+    "dev": "ts-node src/"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
