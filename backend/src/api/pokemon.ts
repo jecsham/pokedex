@@ -32,7 +32,7 @@ async function fetchPokemon(name: string): Promise<ApiResponse> {
     let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
 
     if (response.status !== 200)
-      apiResponse(false, "Pokemon API server issues");
+      apiResponse(false, response.statusText);
     let json = await response.json();
     pokemon = {
       id: json?.id,
@@ -63,7 +63,7 @@ async function fetchPokemons(): Promise<ApiResponse> {
     for (const resp of responses) {
       if (resp.status === "rejected") return apiResponse(false, resp.reason);
       if (resp.value.status !== 200)
-        return apiResponse(false, "Pokemon API server issues");
+        return apiResponse(false, resp.value.statusText);
       let json = await resp.value.json();
 
       pokemons.push({
