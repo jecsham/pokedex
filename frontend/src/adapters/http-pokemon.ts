@@ -1,28 +1,43 @@
+let _baseUrl = "";
 let selectedPokemonCache: Pokemon;
-let _pokemonApiQtyToFetch = 12;
-let _pokemonApiCount = 151; // original only
 let pokemonsCache: Map<string, Pokemon> = new Map<string, Pokemon>();
+let pokedex: Map<string, Pokemon> = new Map<string, Pokemon>();
 
-export interface Pokemon {
-  id: number;
+if (process.env.NODE_ENV === "development") {
+  _baseUrl = "http://localhost:3001";
+}
+
+interface AdapterResponse {
+  success: boolean;
+  message: string;
+  result: any;
+}
+
+export interface PartialPokemon {
   name: string;
-  types: string[];
   picture: string;
+
+  /** add pokemon to pokedex cache */
+  addFn?: (name: string) => void;
+
+  /** remove pokemon from pokedex cache */
+  removeFn?: (name: string) => void;
+}
+export interface Pokemon extends PartialPokemon {
+  id: number;
+  types: string[];
 }
 
-function _genUniqueRandomIntegers(): number[] {
-  let randoms: number[] = [];
-  while (randoms.length < _pokemonApiQtyToFetch) {
-    var r = Math.floor(Math.random() * _pokemonApiCount) + 1;
-    if (randoms.indexOf(r) === -1) randoms.push(r);
-  }
-  return randoms;
-}
+/** standard response */
+const _adapterResponse = (success: boolean, result: any): AdapterResponse => {
+  return {
+    success,
+    message: success ? "Success operation" : result,
+    result: success ? result : undefined,
+  };
+};
 
-/**
- * Fetch a single pokemon (from cache first, then api)
- *
- */
+/** Fetch a single pokemon (from cache first, then api) */
 async function fetchPokemon(name: string): Promise<Pokemon | undefined> {
   // check cache first
   let pokemon: Pokemon | undefined = pokemonsCache.get(name);
@@ -30,54 +45,36 @@ async function fetchPokemon(name: string): Promise<Pokemon | undefined> {
 
   // fetch from api
   try {
-    let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+    let response = await fetch(`${_baseUrl}/api/pokemon/${name}`);
 
-    if (response.status !== 200) throw Error("API server issues");
+    if (response.status !== 200) throw Error("Server issues");
     let json = await response.json();
-    pokemon = {
-      id: json?.id,
-      name: json?.name,
-      picture: json?.sprites?.other["official-artwork"]?.front_default,
-      types: json?.types?.map((e: any) => e?.type?.name),
-    };
+    if (!json.success) throw Error(`API Server Error: ${json.message}`);
+    pokemon = json.result;
     return pokemon;
   } catch (error) {
-    console.log(error);
+    throw Error(`Error trying to fetch: ${error}`);
   }
 }
 
-/**
- * Fetch random pokemons from the api
- *
- */
-async function fetchPokemons(): Promise<Map<string, Pokemon> | undefined> {
-  if(pokemonsCache.size > 1) return pokemonsCache;
-  let numbers = _genUniqueRandomIntegers();
-  let promises = numbers.map((e) =>
-    fetch(`https://pokeapi.co/api/v2/pokemon/${e}`)
-  );
+/** Fetch random pokemons from the api */
+async function fetchPokemons(): Promise<AdapterResponse> {
+  if (pokemonsCache.size > 1) return _adapterResponse(true, pokemonsCache);
 
   try {
-    let responses = await Promise.allSettled(promises);
+    let response = await fetch(`${_baseUrl}/api/pokemons`);
 
-    for (const resp of responses) {
-      if (resp.status === "rejected") throw Error("Error trying to fetch");
-      if (resp.value.status !== 200) throw Error("API server issues");
-      let json = await resp.value.json();
-
-      pokemonsCache.set(json?.name, {
-        id: json?.id,
-        name: json?.name,
-        picture: json?.sprites?.other["official-artwork"]?.front_default,
-        types: json?.types?.map((e: any) => e?.type?.name),
-      });
+    if (response.status !== 200) throw Error(response.statusText);
+    let json = await response.json();
+    if (!json.success) throw Error(`API Server Error: ${json.message}`);
+    console.log(json);
+    for (const item of json.result) {
+      pokemonsCache.set(item.name, item);
     }
-
-    return pokemonsCache;
+    return _adapterResponse(true, pokemonsCache);
   } catch (error) {
-    console.log(error);
+    return _adapterResponse(false, error.message);
   }
-  return;
 }
 
-export { fetchPokemons, fetchPokemon, selectedPokemonCache };
+export { fetchPokemons, fetchPokemon, selectedPokemonCache, pokedex };
