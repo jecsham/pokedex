@@ -28,6 +28,19 @@ export interface Pokemon extends PartialPokemon {
   types: string[];
 }
 
+/** fetch, validate and convert to json */
+const _fetch = async (url: string) => {
+  try {
+    let response = await fetch(url);
+    if (response.status !== 200) throw Error(response.statusText);
+    let json = await response.json();
+    if (!json.success) throw Error(`API Server Error: ${json.message}`);
+    return json;
+  } catch (error) {
+    throw Error(error.message);
+  }
+};
+
 /** standard response */
 const _adapterResponse = (success: boolean, result: any): AdapterResponse => {
   return {
@@ -38,22 +51,18 @@ const _adapterResponse = (success: boolean, result: any): AdapterResponse => {
 };
 
 /** Fetch a single pokemon (from cache first, then api) */
-async function fetchPokemon(name: string): Promise<Pokemon | undefined> {
+async function fetchPokemon(name: string): Promise<AdapterResponse> {
   // check cache first
-  let pokemon: Pokemon | undefined = pokemonsCache.get(name);
-  if (pokemon) return pokemon;
+  let pokemon = pokemonsCache.get(name);
+  if (pokemon) return _adapterResponse(true, pokemon);
 
   // fetch from api
   try {
-    let response = await fetch(`${_baseUrl}/api/pokemon/${name}`);
-
-    if (response.status !== 200) throw Error("Server issues");
-    let json = await response.json();
-    if (!json.success) throw Error(`API Server Error: ${json.message}`);
+    let json = await _fetch(`${_baseUrl}/api/pokemon/${name}`);
     pokemon = json.result;
-    return pokemon;
+    return _adapterResponse(true, pokemon);
   } catch (error) {
-    throw Error(`Error trying to fetch: ${error}`);
+    return _adapterResponse(false, error.message);
   }
 }
 
@@ -62,12 +71,7 @@ async function fetchPokemons(): Promise<AdapterResponse> {
   if (pokemonsCache.size > 1) return _adapterResponse(true, pokemonsCache);
 
   try {
-    let response = await fetch(`${_baseUrl}/api/pokemons`);
-
-    if (response.status !== 200) throw Error(response.statusText);
-    let json = await response.json();
-    if (!json.success) throw Error(`API Server Error: ${json.message}`);
-    console.log(json);
+    let json = await _fetch(`${_baseUrl}/api/pokemons`);
     for (const item of json.result) {
       pokemonsCache.set(item.name, item);
     }

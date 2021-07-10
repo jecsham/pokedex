@@ -34,6 +34,7 @@ function Home() {
   };
 
   const renderPlaceholder = () => {
+    if (state.error) return <ErrorAlert message={state.error} />;
     if (state.isLoading) {
       return (
         <div className="spinner-border" role="status">

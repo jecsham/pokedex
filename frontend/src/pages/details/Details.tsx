@@ -1,24 +1,29 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { fetchPokemon, Pokemon } from "../../adapters/http-pokemon";
+import ErrorAlert from "../../components/Erroralert";
 import ExpandedCard from "./Expandedcard";
 
 interface ComponentState {
   selectedPokemon: Pokemon | null;
+  error: string | null;
 }
 
 function Details() {
   let { pokemonName } = useParams<any>();
   let [state, setState] = useState<ComponentState>({
     selectedPokemon: null,
+    error: null,
   });
 
   const loadPokemon = async () => {
     let pokemon = await fetchPokemon(pokemonName);
-    if (pokemon) setState({ ...state, selectedPokemon: pokemon });
+    if (!pokemon.success) return setState({ ...state, error: pokemon.message });
+    setState({ ...state, selectedPokemon: pokemon.result });
   };
 
   const renderPlaceholder = () => {
+    if (state.error) return <ErrorAlert message={state.error} />;
     if (!state.selectedPokemon) {
       return (
         <div className="spinner-border" role="status">
