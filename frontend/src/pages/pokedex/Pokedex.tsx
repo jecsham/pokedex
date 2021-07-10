@@ -1,49 +1,68 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import {
-  fetchPokemon,
-  Pokemon,
-} from "../../adapters/http-pokemon";
+import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { pokedex, Pokemon } from "../../adapters/http-pokemon";
+import AppContext from "../../contexts/AppContext";
+import Row from "./Row";
+
+interface ComponentState {
+  items: Pokemon[];
+}
 
 function PokeDex() {
-  let { pokemonName } = useParams<any>();
-  let [selectedPokemon, setSelectedPokemon] = useState<Pokemon>();
+  const [state, setState] = useState<ComponentState>({
+    items: [],
+  });
 
-  const loadPokemon = async () => {
-    let pokemon = await fetchPokemon(pokemonName);
-    if (pokemon) setSelectedPokemon(pokemon);
+  const appContext = useContext(AppContext);
+
+  const loadPokedex = async () => {
+    setState({
+      ...state,
+      items: Array.from(pokedex, ([n, v]) => ({
+        name: n,
+        id: v?.id,
+        picture: v?.picture,
+        types: v?.types,
+      })),
+    });
+  };
+
+  const removeFromPokedex = (name: string) => {
+    pokedex.delete(name);
+    loadPokedex();
+    appContext.updateCount();
   };
 
   const renderPlaceholder = () => {
-    if (!selectedPokemon) {
+    if (state.items.length === 0) {
       return (
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+        <p className="text-center">
+          You have not added any Pokemon yet.{" "}
+          <Link to="/">Add a Pokemon now</Link>
+        </p>
       );
     } else {
-      return (
-        <div className="col-12 col-sm-8 col-lg-6 g-3">
-          {/* <ExpandedCard
-            name={selectedPokemon?.name}
-            picture={selectedPokemon?.picture}
-            id={selectedPokemon?.id}
-            types={selectedPokemon?.types}
-          /> */}
+      return state.items.map((item) => (
+        <div key={item.id} className="col-8 g-3">
+          <Row
+            name={item.name}
+            picture={item.picture}
+            removeFn={removeFromPokedex}
+          />
         </div>
-      );
+      ));
     }
   };
 
   useEffect(() => {
-    loadPokemon();
+    loadPokedex();
   }, []);
 
   return (
     <div className="container py-3">
       <div className="row">
         <div className="col-12">
-          <h3 className="text-center">Digital PokeDex</h3>
+          <h3 className="text-center">My PokeDex</h3>
         </div>
       </div>
       <div className="row justify-content-center">{renderPlaceholder()}</div>
