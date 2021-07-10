@@ -66,7 +66,7 @@ async function fetchPokemons(): Promise<ApiResponse> {
         return apiResponse(false, "Pokemon API server issues");
       let json = await resp.value.json();
 
-      pokemons.push(json?.name, {
+      pokemons.push({
         id: json?.id,
         name: json?.name,
         picture: json?.sprites?.other["official-artwork"]?.front_default,
