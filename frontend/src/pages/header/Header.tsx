@@ -1,8 +1,8 @@
 // import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 function Header() {
-//   const [count, setCount] = useState(0);
+  //   const [count, setCount] = useState(0);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -24,7 +24,9 @@ function Header() {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <Link className="nav-link" to="/">Home</Link>
+              <NavLink exact className="nav-link" activeClassName="active" to="/">
+                Home
+              </NavLink>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">
