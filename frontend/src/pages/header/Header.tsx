@@ -1,8 +1,18 @@
-// import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+interface PropsComponent {
+  itemCount: number;
+}
 
-function Header() {
-  //   const [count, setCount] = useState(0);
+function Header(props: PropsComponent) {
+  const renderCounter = () => {
+    if (props.itemCount) {
+      return (
+        <span className="ms-1 badge rounded-pill bg-danger">
+          {props.itemCount}
+        </span>
+      );
+    }
+  };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -24,14 +34,25 @@ function Header() {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <NavLink exact className="nav-link" activeClassName="active" to="/">
+              <NavLink
+                exact
+                className="nav-link"
+                activeClassName="active"
+                to="/"
+              >
                 Home
               </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <NavLink
+                exact
+                className="nav-link"
+                activeClassName="active"
+                to="/pokedex"
+              >
                 My Pokedex
-              </a>
+                {renderCounter()}
+              </NavLink>
             </li>
           </ul>
         </div>
