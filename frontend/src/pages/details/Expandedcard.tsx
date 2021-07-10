@@ -1,6 +1,58 @@
-import { Pokemon } from "../../adapters/http-pokemon";
+import { useContext, useEffect, useState } from "react";
+import { pokedex, Pokemon } from "../../adapters/http-pokemon";
+import AppContext from "../../contexts/AppContext";
+
+interface ComponentState {
+  isPokemonInPokeDex: boolean;
+}
 
 function ExpandedCard(props: Pokemon) {
+  const [state, setState] = useState<ComponentState>({
+    isPokemonInPokeDex: true,
+  });
+
+  const appContext = useContext(AppContext);
+
+  const checkPokemonInPokedex = () => {
+    setState({ ...state, isPokemonInPokeDex: pokedex.has(props.name) });
+    appContext.updateCount();
+  };
+
+  const addPokemonToPokeDex = () => {
+    pokedex.set(props.name, props);
+    checkPokemonInPokedex();
+  };
+  const removePokemonFromPokeDex = () => {
+    pokedex.delete(props.name);
+    checkPokemonInPokedex();
+  };
+
+  const renderButton = () => {
+    if (state.isPokemonInPokeDex) {
+      return (
+        <button
+          className="btn btn-sm btn-danger"
+          onClick={removePokemonFromPokeDex}
+        >
+          Remove from PokeDex
+        </button>
+      );
+    } else {
+      return (
+        <button
+          className="btn btn-sm btn-success"
+          onClick={addPokemonToPokeDex}
+        >
+          Add to PokeDex
+        </button>
+      );
+    }
+  };
+
+  useEffect(() => {
+    checkPokemonInPokedex();
+  }, []);
+
   return (
     <div className="card shadow-sm">
       <img
@@ -15,12 +67,12 @@ function ExpandedCard(props: Pokemon) {
           <h6># {props.id}</h6>
           <strong className="me-1">Types:</strong>
           {props.types.map((e) => (
-            <div className="me-1 d-inline-block">
+            <div key={e} className="me-1 d-inline-block">
               <span className="badge bg-primary">{e}</span>
             </div>
           ))}
         </div>
-        <button className="btn btn-sm btn-success">Add to PokeDex</button>
+        {renderButton()}
       </div>
     </div>
   );
