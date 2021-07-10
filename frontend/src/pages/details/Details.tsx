@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  fetchPokemon,
-  Pokemon,
-} from "../../adapters/http-pokemon";
+import { fetchPokemon, Pokemon } from "../../adapters/http-pokemon";
 import ExpandedCard from "./Expandedcard";
+
+interface ComponentState {
+  selectedPokemon: Pokemon | null;
+}
 
 function Details() {
   let { pokemonName } = useParams<any>();
-  let [selectedPokemon, setSelectedPokemon] = useState<Pokemon>();
+  let [state, setState] = useState<ComponentState>({
+    selectedPokemon: null,
+  });
 
   const loadPokemon = async () => {
     let pokemon = await fetchPokemon(pokemonName);
-    if (pokemon) setSelectedPokemon(pokemon);
+    if (pokemon) setState({ ...state, selectedPokemon: pokemon });
   };
 
   const renderPlaceholder = () => {
-    if (!selectedPokemon) {
+    if (!state.selectedPokemon) {
       return (
         <div className="spinner-border" role="status">
           <span className="visually-hidden">Loading...</span>
@@ -26,10 +29,10 @@ function Details() {
       return (
         <div className="col-12 col-sm-8 col-lg-6 g-3">
           <ExpandedCard
-            name={selectedPokemon?.name}
-            picture={selectedPokemon?.picture}
-            id={selectedPokemon?.id}
-            types={selectedPokemon?.types}
+            name={state.selectedPokemon?.name}
+            picture={state.selectedPokemon?.picture}
+            id={state.selectedPokemon?.id}
+            types={state.selectedPokemon?.types}
           />
         </div>
       );
@@ -44,7 +47,7 @@ function Details() {
     <div className="container py-3">
       <div className="row">
         <div className="col-12">
-          <h3 className="text-center">Digital PokeDex</h3>
+          <h3 className="text-center">Pokemon Details</h3>
         </div>
       </div>
       <div className="row justify-content-center">{renderPlaceholder()}</div>
