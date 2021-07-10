@@ -1,6 +1,6 @@
-import React from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import Header from "./header";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Header from "./pages/header";
+import Home from "./pages/home";
 
 function App() {
   return (
@@ -8,8 +8,9 @@ function App() {
       <Header />
 
       <Switch>
-        <Route exact path="/"></Route>
-       
+        <Route exact path="/">
+          <Home/>
+        </Route> 
       </Switch>
     </Router>
   );
