@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2020",
     "module": "commonjs",
     "sourceMap": false,
     "outDir": "dist",
@@ -12,6 +12,5 @@
       "baseUrl": ["."]
     },
     "esModuleInterop": true
-  },
-  "lib": ["es2015"]
+  }
 }
