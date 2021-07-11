@@ -15,16 +15,17 @@ function ExpandedCard(props: Pokemon) {
 
   const checkPokemonInPokedex = () => {
     setState({ ...state, isPokemonInPokeDex: pokedex.has(props.name) });
-    appContext.updateCount();
   };
 
   const addPokemonToPokeDex = () => {
     pokedex.set(props.name, props);
     checkPokemonInPokedex();
+    appContext.updateCount();
   };
   const removePokemonFromPokeDex = () => {
     pokedex.delete(props.name);
     checkPokemonInPokedex();
+    appContext.updateCount();
   };
 
   const renderButton = () => {
