@@ -28,20 +28,22 @@ export interface Pokemon extends PartialPokemon {
   types: string[];
 }
 
-/** fetch, validate and convert to json */
-const _fetch = async (url: string) => {
-  try {
-    let response = await fetch(url);
-    if (response.status !== 200) throw Error(response.statusText);
-    let json = await response.json();
-    if (!json.success) throw Error(`API Server Error: ${json.message}`);
-    return json;
-  } catch (error) {
-    throw Error(error.message);
-  }
+/**
+ * Fetch, validate and convert to json
+ * @param url - url to fetch
+ * @return Promise<any>
+ */
+const _fetch = async (url: string): Promise<any> => {
+  let response = await fetch(url);
+  if (response.status !== 200) throw Error(response.statusText);
+  let json = await response.json();
+  if (!json.success) throw Error(`API Server Error: ${json.message}`);
+  return json;
 };
 
-/** standard response */
+/**
+ * Standard response for apis
+ */
 const _adapterResponse = (success: boolean, result: any): AdapterResponse => {
   return {
     success,
@@ -50,13 +52,17 @@ const _adapterResponse = (success: boolean, result: any): AdapterResponse => {
   };
 };
 
-/** Fetch a single pokemon (from cache first, then api) */
+/**
+ * Fetch a single pokemon (from cache first, then server api)
+ * @param name - pokemon name
+ * @return Promise<ApiResponse>
+ */
 async function fetchPokemon(name: string): Promise<AdapterResponse> {
   // check cache first
   let pokemon = pokemonsCache.get(name);
   if (pokemon) return _adapterResponse(true, pokemon);
 
-  // fetch from api
+  // fetch from server api
   try {
     let json = await _fetch(`${_baseUrl}/api/pokemon/${name}`);
     pokemon = json.result;
@@ -66,7 +72,10 @@ async function fetchPokemon(name: string): Promise<AdapterResponse> {
   }
 }
 
-/** Fetch random pokemons from the api */
+/**
+ * Fetch random pokemons server api
+ * @return Promise<ApiResponse>
+ */
 async function fetchPokemons(): Promise<AdapterResponse> {
   if (pokemonsCache.size > 1) return _adapterResponse(true, pokemonsCache);
 
