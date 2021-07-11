@@ -1,6 +1,6 @@
 import { fetchPokemon, fetchPokemons } from "./pokemon";
 
-export function api(app: any) {
+const api = (app: any) => {
   app.get("/api/pokemons", async (req, res) => {
     let result = await fetchPokemons();
     res.json(result);
@@ -11,4 +11,6 @@ export function api(app: any) {
     let result = await fetchPokemon(param);
     res.json(result);
   });
-}
+};
+
+export { api };

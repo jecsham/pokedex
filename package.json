@@ -4,12 +4,14 @@
   "main": "index.js",
   "author": "jecsham <jecsham27@gmail.com>",
   "scripts": {
-    "build": "sh ./build.sh",
+    "build": "sh scripts/build.sh",
+    "prettier": "sh scripts/prettier.sh",
     "start": "cd backend && yarn start"
   },
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^16.3.1",
+    "prettier": "^2.3.2",
     "recursive-copy-cli": "^1.0.18"
   }
 }

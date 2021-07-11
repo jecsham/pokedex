@@ -57,7 +57,7 @@ const _adapterResponse = (success: boolean, result: any): AdapterResponse => {
  * @param name - pokemon name
  * @return Promise<ApiResponse>
  */
-async function fetchPokemon(name: string): Promise<AdapterResponse> {
+const fetchPokemon = async (name: string): Promise<AdapterResponse> => {
   // check cache first
   let pokemon = pokemonsCache.get(name);
   if (pokemon) return _adapterResponse(true, pokemon);
@@ -70,13 +70,13 @@ async function fetchPokemon(name: string): Promise<AdapterResponse> {
   } catch (error) {
     return _adapterResponse(false, error.message);
   }
-}
+};
 
 /**
  * Fetch random pokemons server api
  * @return Promise<ApiResponse>
  */
-async function fetchPokemons(): Promise<AdapterResponse> {
+const fetchPokemons = async (): Promise<AdapterResponse> => {
   if (pokemonsCache.size > 1) return _adapterResponse(true, pokemonsCache);
 
   try {
@@ -88,6 +88,6 @@ async function fetchPokemons(): Promise<AdapterResponse> {
   } catch (error) {
     return _adapterResponse(false, error.message);
   }
-}
+};
 
 export { fetchPokemons, fetchPokemon, selectedPokemonCache, pokedex };
