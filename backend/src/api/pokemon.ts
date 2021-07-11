@@ -12,28 +12,41 @@ export interface Pokemon {
   picture: string;
 }
 
-function _genUniqueRandomIntegers(): number[] {
+/**
+ * Generate an array of unique integer numbers
+ * @return number[]
+ */
+const _genUniqueRandomIntegers = (): number[] => {
   let randoms: number[] = [];
   while (randoms.length < _pokemonApiQtyToFetch) {
     var r = Math.floor(Math.random() * _pokemonApiCount) + 1;
     if (randoms.indexOf(r) === -1) randoms.push(r);
   }
   return randoms;
-}
+};
 
 /**
- * Fetch a single pokemon
- *
+ * Fetch, validate and convert to json
+ * @param url - url to fetch
+ * @return Promise<any>
  */
-async function fetchPokemon(name: string): Promise<ApiResponse> {
+const _fetch = async (url: string): Promise<any> => {
+  let response = await fetch(url);
+  if (response.status !== 200) throw new Error(response.statusText);
+  let json = await response.json();
+  return json;
+};
+
+/**
+ * Fetch a single pokemon from pokemon API and format it
+ * @param name - pokemon name
+ * @return Promise<ApiResponse>
+ */
+const fetchPokemon = async (name: string): Promise<ApiResponse> => {
   if (!name) return apiResponse(false, "name param is not defined");
   let pokemon: Pokemon;
   try {
-    let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
-
-    if (response.status !== 200)
-      apiResponse(false, response.statusText);
-    let json = await response.json();
+    let json = await _fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
     pokemon = {
       id: json?.id,
       name: json?.name,
@@ -44,17 +57,17 @@ async function fetchPokemon(name: string): Promise<ApiResponse> {
   } catch (error) {
     return apiResponse(false, error);
   }
-}
+};
 
 /**
- * Fetch random pokemons from the api
- *
+ * Fetch random pokemons from pokemon api and format it
+ * @return Promise<ApiResponse>
  */
-async function fetchPokemons(): Promise<ApiResponse> {
+const fetchPokemons = async (): Promise<ApiResponse> => {
   let pokemons: Pokemon[] = [];
   let numbers = _genUniqueRandomIntegers();
   let promises = numbers.map((e) =>
-    fetch(`https://pokeapi.co/api/v2/pokemon/${e}`)
+    _fetch(`https://pokeapi.co/api/v2/pokemon/${e}`)
   );
 
   try {
@@ -62,10 +75,7 @@ async function fetchPokemons(): Promise<ApiResponse> {
 
     for (const resp of responses) {
       if (resp.status === "rejected") return apiResponse(false, resp.reason);
-      if (resp.value.status !== 200)
-        return apiResponse(false, resp.value.statusText);
-      let json = await resp.value.json();
-
+      let json = resp.value;
       pokemons.push({
         id: json?.id,
         name: json?.name,
@@ -77,6 +87,6 @@ async function fetchPokemons(): Promise<ApiResponse> {
   } catch (error) {
     return apiResponse(false, error);
   }
-}
+};
 
 export { fetchPokemons, fetchPokemon, selectedPokemonCache };
