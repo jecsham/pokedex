@@ -15,7 +15,6 @@ function App() {
   const [state, setState] = useState<ComponentState>({ count: 0 });
 
   const updateCount = () => {
-    console.log("updated context")
     setState({ ...state, count: pokedex.size });
   };
 
