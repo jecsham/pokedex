@@ -1,6 +1,6 @@
 
 # Digital Pokedex
-DEMO: https://digital-pokedex.herokuapp.com/
+[VIDEO DEMO](https://youtu.be/A3SUUR3tCzs) | [WEB DEMO](https://digital-pokedex.herokuapp.com/) 
 
 The repository has 2 main projects: the `frontend` and `backend`.
 
@@ -13,6 +13,7 @@ Provides 3 views: **Home**, **Details** and **My PokeDex**.
 - React Router
 ### Backend
 Serves the `frontend` itself and also provides a proxy that connects to and formats the content of the [Poke API](https://pokeapi.co/docs/v2).
+#### Technologies
 - TypeScript
 - NodeJS
 - ExpressJS
