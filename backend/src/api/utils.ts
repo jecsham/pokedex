@@ -5,7 +5,7 @@ export interface ApiResponse {
 }
 
 /**
- * Return common json api response for all requests
+ * Standard json api response for all requests
  */
 export function apiResponse(success: boolean, result: any): ApiResponse {
   return {
